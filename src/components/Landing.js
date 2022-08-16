@@ -141,7 +141,7 @@ const Landing = () => {
                 className="text-center border border-light mt-3"
                 style={{ fontSize: "1.3rem" }}
               >
-                Log in
+                Log In
               </Button>
             </Form.Group>
           </Form>
