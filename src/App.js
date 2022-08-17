@@ -1,12 +1,17 @@
 import React from "react";
 import Landing from "./components/Landing";
-import FollowSuggestions from "./FollowSuggestions";
-import ProfileSmall from "./ProfileSmall";
+import Profile from "./components/Profile";
+import Flow from "./components/Flow";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (
-    <div className="App">
-      <FollowSuggestions />
+    <div className="bg-info">
+      <Routes>
+        <Route path="/landing" element={<Landing />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/flow" element={<Flow />} />
+      </Routes>
     </div>
   );
 }
