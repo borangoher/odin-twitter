@@ -4,9 +4,72 @@ import Button from "react-bootstrap//Button";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
+import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
 
-const Landing = () => {
+const Landing = (props) => {
   const [currentDisp, setCurrentDisp] = useState("start");
+  const firestore = getFirestore(props.db);
+
+  const checkLogIn = async (e) => {
+    e.preventDefault();
+    const password = document.getElementById("passwordLogIn").value;
+    const username = document.getElementById("usernameLogIn").value;
+    const querySnapshot = await getDocs(collection(firestore, "users"));
+    let cont = true;
+    querySnapshot.forEach((doc) => {
+      if (cont === false) {
+        return;
+      }
+      if (doc.data().username === username) {
+        cont = false;
+        if (doc.data().password === password) {
+          localStorage.setItem("userID", doc.id);
+          window.location.assign("/flow");
+          return;
+        } else {
+          alert("Wrong password");
+          return;
+        }
+      }
+    });
+    if (cont === true) {
+      alert("Username not found");
+    }
+  };
+
+  const checkSignUp = async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("usernameSignUp").value;
+    const password = document.getElementById("passwordSignUp").value;
+    const confirm = document.getElementById("confirmPasswordSignUp").value;
+
+    if (password !== confirm) {
+      alert("Passwords don't match");
+      return;
+    }
+
+    let cont = true;
+    const querySnapshot = await getDocs(collection(firestore, "users"));
+    querySnapshot.forEach((doc) => {
+      if (!cont) {
+        return;
+      }
+
+      if (doc.data().username === username) {
+        cont = false;
+        alert("Username already exists");
+      }
+    });
+    if (cont) {
+      const docRef = await addDoc(collection(firestore, "users"), {
+        username: username,
+        password: password,
+        dispName: username,
+      });
+      localStorage.setItem("userID", docRef);
+      window.location.assign("/flow");
+    }
+  };
 
   const displayStack = () => {
     if (currentDisp === "start") {
@@ -81,19 +144,22 @@ const Landing = () => {
           <Form className="mt-2 text-light">
             <Form.Group>
               <Form.Label>Username</Form.Label>
-              <Form.Control type="text"></Form.Control>
+              <Form.Control type="text" id="usernameSignUp"></Form.Control>
             </Form.Group>
             <Form.Group>
               <Form.Label>Email Adress</Form.Label>
-              <Form.Control type="email"></Form.Control>
+              <Form.Control type="email" id="emailSignUp"></Form.Control>
             </Form.Group>
             <Form.Group>
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password"></Form.Control>
+              <Form.Control type="password" id="passwordSignUp"></Form.Control>
             </Form.Group>
             <Form.Group>
               <Form.Label>Confirm Password</Form.Label>
-              <Form.Control type="password"></Form.Control>
+              <Form.Control
+                type="password"
+                id="confirmPasswordSignUp"
+              ></Form.Control>
             </Form.Group>
             <Form.Group>
               <Button
@@ -101,6 +167,9 @@ const Landing = () => {
                 type="submit"
                 className="text-center border border-light mt-3"
                 style={{ fontSize: "1.3rem" }}
+                onClick={(e) => {
+                  checkSignUp(e);
+                }}
               >
                 Sign Up!
               </Button>
@@ -128,11 +197,11 @@ const Landing = () => {
           <Form className="mt-2 text-light">
             <Form.Group>
               <Form.Label>Username</Form.Label>
-              <Form.Control type="text"></Form.Control>
+              <Form.Control type="text" id="usernameLogIn"></Form.Control>
             </Form.Group>
             <Form.Group>
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password"></Form.Control>
+              <Form.Control type="password" id="passwordLogIn"></Form.Control>
             </Form.Group>
             <Form.Group>
               <Button
@@ -140,6 +209,9 @@ const Landing = () => {
                 type="submit"
                 className="text-center border border-light mt-3"
                 style={{ fontSize: "1.3rem" }}
+                onClick={(e) => {
+                  checkLogIn(e);
+                }}
               >
                 Log In
               </Button>

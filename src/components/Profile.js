@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -10,9 +10,30 @@ import ProfileMain from "./ProfileMain";
 import FollowSuggestions from "./FollowSuggestions";
 import Button from "react-bootstrap/Button";
 import { Link } from "react-router-dom";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 
-const Profile = () => {
+const Profile = (props) => {
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
+
+  const firestore = getFirestore(props.db);
+
+  useEffect(() => {
+    const displayList = async () => {
+      const querySnapshot = await getDocs(collection(firestore, "users"));
+      const profID = localStorage.getItem("profileID");
+      let userData = {};
+      querySnapshot.forEach((doc) => {
+        if (doc.id === profID) {
+          userData = doc.data();
+        }
+      });
+
+      setUserInfo(userData);
+    };
+
+    displayList();
+  }, [props, firestore]);
 
   return (
     <Container fluid className="bg-light">
@@ -93,18 +114,21 @@ const Profile = () => {
         <Col sm={3}>
           <ListGroup>
             <ListGroup.Item>
-              Display Name <Button className="py-1">Edit</Button>
+              {`Display Name: ${userInfo.dispName}`}
+              <Button className="mx-1 py-1">Edit</Button>
             </ListGroup.Item>
             <ListGroup.Item>
-              Username <Button className="py-1">Edit</Button>
+              {`Username: ${userInfo.username}`}
+              <Button className="mx-1 py-1">Edit</Button>
             </ListGroup.Item>
             <ListGroup.Item>
-              Location <Button className="py-1">Edit</Button>
+              {`Location: ${userInfo.location}`}
+              <Button className="mx-1 py-1">Edit</Button>
             </ListGroup.Item>
             <ListGroup.Item>
-              Link <Button className="py-1">Edit</Button>
+              {`Link: ${userInfo.link}`}
+              <Button className="mx-1 py-1">Edit</Button>
             </ListGroup.Item>
-            <ListGroup.Item>Joined</ListGroup.Item>
           </ListGroup>
         </Col>
         <Col sm={5}>
